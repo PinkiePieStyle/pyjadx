@@ -45,7 +45,8 @@ class Jadx {
       bool show_inconsistent_code = true,
       bool deobfuscation_on = false,
       size_t deobfuscation_min_length = 3,
-      size_t deobfuscation_max_length = 64
+      size_t deobfuscation_max_length = 64,
+      bool replace_consts = false
       );
 
   ~Jadx(void);
@@ -62,6 +63,7 @@ class Jadx {
 
   JavaVM* jvm_{nullptr};
   JNIEnv* env_{nullptr};
+  bool should_detach_{false};
   inline static thread_local Jadx* instance_ = nullptr;
 
 

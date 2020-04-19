@@ -48,7 +48,8 @@ PYBIND11_MODULE(pyjadx, jadx_module) {
         &jni::Jadx::load,
         "Load an APK or Dex file to decompile",
         "apk_path"_a, "escape_unicode"_a = true, "show_inconsistent_code"_a = true,
-        "deobfuscation_on"_a = false, "deobfuscation_min_length"_a = 3, "deobfuscation_max_length"_a = 64
+        "deobfuscation_on"_a = false, "deobfuscation_min_length"_a = 3, "deobfuscation_max_length"_a = 64,
+        "replace_consts"_a = false
         );
 
 
@@ -155,6 +156,11 @@ PYBIND11_MODULE(pyjadx, jadx_module) {
     .def_property_readonly("code",
           &JavaClass::getCode,
           "Java decompiled code as a ``str``")
+
+    .def_property_readonly("smali",
+          &JavaClass::getSmali,
+          "Return smali code as a ``str``")
+
     .def_property_readonly("code_highlight",
         [] (JavaClass& cls) -> py::object {
           try {
@@ -192,6 +198,31 @@ PYBIND11_MODULE(pyjadx, jadx_module) {
           }
 
           return cls.save(str_output);
+        },
+        "Save decompiled code in the file given in first parameter\n\n"
+        "Return False is an error occurred",
+        "output_path"_a)
+
+
+    .def("save_smali",
+        [] (JavaClass& cls, py::object output) {
+          std::string str_output;
+
+          auto&& pathlib = py::module::import("pathlib");
+          auto&& Path = pathlib.attr("Path");
+          if (py::isinstance<py::str>(output)) {
+            str_output = output.cast<std::string>();
+          }
+          else if (py::isinstance(output, Path)) {
+            str_output = output.attr("as_posix")().cast<std::string>();
+
+          } else {
+            std::string error_str = py::repr(output).cast<std::string>();
+            error_str = error_str + " is not supported!";
+            throw py::type_error(error_str.c_str());
+          }
+
+          return cls.save_smali(str_output);
         },
         "Save decompiled code in the file given in first parameter\n\n"
         "Return False is an error occurred",

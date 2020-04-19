@@ -40,6 +40,7 @@ class JadxArgs {
   void use_source_name_as_class_alias(bool value);
   void deobfuscation_min_length(size_t value);
   void deobfuscation_max_length(size_t value);
+  void replace_consts(bool value);
 
   private:
   inline JNIEnv& env(void) {

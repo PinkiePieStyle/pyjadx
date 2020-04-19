@@ -41,6 +41,15 @@ std::string JavaClass::getCode() {
   }
 }
 
+std::string JavaClass::getSmali() {
+  try {
+    static auto&& getCode = this->clazz().GetMethod<String()>(this->env(), "getSmali");
+    return Make<std::string>(this->env(), this->obj_.Call(this->env(), getCode));
+  } catch (const jni::PendingJavaException& e) {
+    return "";
+  }
+}
+
 
 bool JavaClass::save(const std::string& path) {
   std::ofstream output{path, std::ios::trunc};
@@ -49,6 +58,17 @@ bool JavaClass::save(const std::string& path) {
     return false;
   }
   output << this->getCode();
+  return true;
+}
+
+
+bool JavaClass::save_smali(const std::string& path) {
+  std::ofstream output{path, std::ios::trunc};
+  if (not output) {
+    std::cerr << "Can't save to '" << path << "'" << std::endl;
+    return false;
+  }
+  output << this->getSmali();
   return true;
 }
 

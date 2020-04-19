@@ -35,8 +35,10 @@ class JavaClass : public JavaNode<JavaClass, JavaClassTag, Object<JavaClassTag>,
   JavaClass(JNIEnv& env, const Object<>& obj);
 
   std::string getCode(void);
+  std::string getSmali(void);
 
   bool save(const std::string& path);
+  bool save_smali(const std::string& path);
 
   methods_list_t methods(void);
 };

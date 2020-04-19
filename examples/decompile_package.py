@@ -10,7 +10,7 @@ def decompile_pkg(apk, package):
     apk_path   = pathlib.Path(apk).resolve().absolute()
     decompiler = jadx.load(apk_path.as_posix())
     for pkg in decompiler.packages:
-        if pkg.fullname != package:
+        if not pkg.fullname.startswith(package):
             continue
         pkg.save(pathlib.Path("."))
 

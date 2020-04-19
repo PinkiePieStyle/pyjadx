@@ -85,4 +85,11 @@ void JadxArgs::escape_unicode(bool value) {
   return this->obj_.Call(this->env(), setEscapeUnicode, static_cast<jboolean>(value));
 }
 
+void JadxArgs::replace_consts(bool value) {
+  static auto&& setReplaceConsts = this->clazz().template GetMethod<void(jboolean)>(this->env(), "setReplaceConsts");
+
+  return this->obj_.Call(this->env(), setReplaceConsts, static_cast<jboolean>(value));
+}
+
+
 }

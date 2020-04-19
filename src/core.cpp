@@ -22,7 +22,8 @@ jadx::api::JadxDecompiler Jadx::load(const std::string& apk_path,
       bool show_inconsistent_code,
       bool deobfuscation_on,
       size_t deobfuscation_min_length,
-      size_t deobfuscation_max_length)
+      size_t deobfuscation_max_length,
+      bool replace_consts)
 {
   const std::lock_guard<std::mutex> lock(jvm_mu);
   jni::jadx::api::JadxArgs jadx_args{this->env()};
@@ -34,6 +35,7 @@ jadx::api::JadxDecompiler Jadx::load(const std::string& apk_path,
   jadx_args.deobfuscation_on(deobfuscation_on);
   jadx_args.deobfuscation_min_length(deobfuscation_min_length);
   jadx_args.deobfuscation_max_length(deobfuscation_max_length);
+  jadx_args.replace_consts(replace_consts);
 
   jni::jadx::api::JadxDecompiler decompiler{this->env(), jadx_args};
   decompiler.load();
@@ -197,46 +199,45 @@ Jadx::Jadx(void) {
   }
 
   static constexpr std::initializer_list<const char*> jadx_libraries = {
-    "smali-2.2.7.jar",
-    "stringtemplate-3.2.1.jar",
-    "rxjava2-swing-0.3.7.jar",
-    "gson-2.8.5.jar",
-    "asm-7.1.jar",
-    "guava-28.0-jre.jar",
-    "dexlib2-2.2.7.jar",
-    "animal-sniffer-annotations-1.17.jar",
-    "commons-lang3-3.9.jar",
-    "apksig-3.4.1.jar",
-    "jfontchooser-1.0.5.jar",
-    "rsyntaxtextarea-3.0.3.jar",
-    "jadx-gui-dev.jar",
-    "image-viewer-1.2.3.jar",
-    "failureaccess-1.0.1.jar",
-    "util-2.2.7.jar",
-    "slf4j-api-1.7.26.jar",
-    "baksmali-2.2.7.jar",
-    "commons-text-1.6.jar",
-    "rxjava-2.2.10.jar",
-    "android-29-res.jar",
-    "antlr-runtime-3.5.2.jar",
-    "j2objc-annotations-1.3.jar",
     "android-29-clst.jar",
+    "android-29-res.jar",
+    "annotations-18.0.0.jar",
+    "antlr-2.7.7.jar",
+    "antlr-runtime-3.5.2.jar",
+    "apksig-3.5.3.jar",
+    "asm-7.3.1.jar",
+    "baksmali-2.4.0.jar",
+    "checker-qual-2.10.0.jar",
+    "commons-lang3-3.9.jar",
+    "commons-text-1.8.jar",
+    "dexlib2-2.4.0.jar",
+    "dx-1.16.jar",
+    "error_prone_annotations-2.3.4.jar",
+    "failureaccess-1.0.1.jar",
+    "gson-2.8.6.jar",
+    "guava-28.2-jre.jar",
+    "image-viewer-1.2.3.jar",
+    "j2objc-annotations-1.3.jar",
+    "jadx-cli-dev.jar",
+    "jadx-core-dev.jar",
+    "jadx-gui-dev.jar",
+    "jcommander-1.78.jar",
+    "jfontchooser-1.0.5.jar",
+    "jsr305-3.0.2.jar",
+    "listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar",
     "logback-classic-1.2.3.jar",
     "logback-core-1.2.3.jar",
-    "checker-qual-2.8.1.jar",
-    "jsr305-3.0.2.jar",
-    "error_prone_annotations-2.3.2.jar",
-    "jcommander-1.74.jar",
-    "annotations-17.0.0.jar",
-    "antlr-2.7.7.jar",
-    "jadx-core-dev.jar",
-    "reactive-streams-1.0.2.jar",
-    "dx-1.16.jar",
-    "listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar",
-    "jadx-cli-dev.jar",
+    "reactive-streams-1.0.3.jar",
+    "rsyntaxtextarea-3.0.8.jar",
+    "rxjava-2.2.17.jar",
+    "rxjava2-swing-0.3.7.jar",
+    "slf4j-api-1.7.30.jar",
+    "smali-2.4.0.jar",
+    "stringtemplate-3.2.1.jar",
+    "util-2.4.0.jar",
   };
 
-  static const std::string prefix = get_jadx_prefix() + "/jadx/c3f7a04/";
+  static const std::string prefix = get_jadx_prefix() + "/jadx/47dadf0/";
 
   std::string classpath = std::accumulate(
       std::begin(jadx_libraries),
@@ -254,7 +255,14 @@ Jadx::Jadx(void) {
   jvm_get_created(nullptr, 0, &nJVMs);
   if (nJVMs > 0) {
     jvm_get_created(&this->jvm_, 1, &nJVMs);
-    this->jvm_->AttachCurrentThread(reinterpret_cast<void**>(&this->env_), nullptr);
+    if (this->jvm_ == nullptr) {
+      std::cerr << "Error while creating JVM" << std::endl;
+      return;
+    }
+    if (this->jvm_->GetEnv(reinterpret_cast<void**>(&this->env_), JNI_VERSION_1_6) == JNI_EDETACHED) {
+      this->jvm_->AttachCurrentThread(reinterpret_cast<void**>(&this->env_), nullptr);
+      this->should_detach_ = true;
+    }
     return;
   }
 
@@ -280,7 +288,9 @@ Jadx::Jadx(void) {
 
 Jadx::~Jadx(void) {
   if (this->jvm_) {
-    this->jvm_->DetachCurrentThread();
+    if (this->should_detach_) {
+      this->jvm_->DetachCurrentThread();
+    }
     //this->jvm_->DestroyJavaVM();
   }
 }
