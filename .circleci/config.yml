@@ -6,6 +6,7 @@ executors:
       - image: ubuntu:20.04
     environment:
       TZ: "Europe/Paris"
+      DEBIAN_FRONTEND: "noninteractive"
 
 jobs:
   build:
@@ -17,7 +18,7 @@ jobs:
             apt-get update -qq
             apt-get install -yqq openjdk-8-jdk
             apt-get install -yqq cmake zlib1g-dev build-essential git software-properties-common
-            add-apt-repository ppa:deadsnakes/ppa
+            add-apt-repository -y ppa:deadsnakes/ppa
             apt-get update -qq
             apt-get install -yqq python3.6 python3.7 python3.8 python3-pip
             apt-get install -yqq g++
@@ -54,7 +55,7 @@ jobs:
           apt-get update -qq
           apt-get install -yqq openjdk-8-jdk
           apt-get install -yqq cmake zlib1g-dev build-essential git software-properties-common
-          add-apt-repository ppa:deadsnakes/ppa
+          add-apt-repository -y ppa:deadsnakes/ppa
           apt-get update -qq
           apt-get install -yqq python3.6 python3.7 python3.8 python3-pip
           apt-get install -yqq ca-certificates
@@ -76,7 +77,7 @@ jobs:
             apt-get update -qq
             apt-get install -yqq ca-certificates
             apt-get install -yqq cmake zlib1g-dev build-essential git software-properties-common
-            add-apt-repository ppa:deadsnakes/ppa
+            add-apt-repository -y ppa:deadsnakes/ppa
             apt-get update -qq
             apt-get install -yqq python3.8 python3-pip
             python3.8 -m pip install setuptools --upgrade
