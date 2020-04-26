@@ -1,11 +1,9 @@
 language: cpp
-
 git:
   depth: false
 
-matrix:
+jobs:
     include:
-
         ## OSX 10.12 - xcode 8.2 - Python 3.6
         - os: osx
           osx_image: xcode9.4
@@ -20,8 +18,6 @@ notifications:
   email:
     on_success: never
     on_failure: always
-
-sudo: required
 
 cache:
   - ccache
@@ -39,12 +35,12 @@ before_install:
   - if [ "$TRAVIS_OS_NAME" == "osx" ]; then pyenv root; fi
   - if [ "$TRAVIS_OS_NAME" == "osx" ]; then pyenv install --list  ;fi
 
-  - if [[ "$TRAVIS_OS_NAME" == "osx" && "$PYTHON_VERSION" == "3.5" ]]; then pyenv install 3.5.0; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" && "$PYTHON_VERSION" == "3.6" ]]; then pyenv install 3.6.0; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" && "$PYTHON_VERSION" == "3.5" ]]; then pyenv install --skip-existing 3.5.9; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" && "$PYTHON_VERSION" == "3.6" ]]; then pyenv install --skip-existing 3.6.0; fi
 
-  - if [[ "$TRAVIS_OS_NAME" == "osx" && "$PYTHON_VERSION" == "3.5" ]]; then export PYTHON_INCLUDE_DIR=$(pyenv root)/versions/3.5.0/include/python3.5m ;fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" && "$PYTHON_VERSION" == "3.5" ]]; then export PYTHON_LIBRARY=$(pyenv root)/versions/3.5.0/lib/libpython3.dylib   ;fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" && "$PYTHON_VERSION" == "3.5" ]]; then export PYTHON_BINARY=$(pyenv root)/versions/3.5.0/bin/python3.5           ;fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" && "$PYTHON_VERSION" == "3.5" ]]; then export PYTHON_INCLUDE_DIR=$(pyenv root)/versions/3.5.9/include/python3.5m ;fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" && "$PYTHON_VERSION" == "3.5" ]]; then export PYTHON_LIBRARY=$(pyenv root)/versions/3.5.9/lib/libpython3.dylib   ;fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" && "$PYTHON_VERSION" == "3.5" ]]; then export PYTHON_BINARY=$(pyenv root)/versions/3.5.9/bin/python3.5           ;fi
 
   - if [[ "$TRAVIS_OS_NAME" == "osx" && "$PYTHON_VERSION" == "3.6" ]]; then export PYTHON_INCLUDE_DIR=$(pyenv root)/versions/3.6.0/include/python3.6m ;fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" && "$PYTHON_VERSION" == "3.6" ]]; then export PYTHON_LIBRARY=$(pyenv root)/versions/3.6.0/lib/libpython3.dylib   ;fi
@@ -63,11 +59,10 @@ script:
 
 deploy:
   provider: pypi
-  user: pyjadx
+  username: pyjadx
   #server: https://test.pypi.org/legacy/
   distributions: "bdist_wheel"
   skip_existing: true
-  skip_cleanup: true
   on:
     tags: true
   password:
