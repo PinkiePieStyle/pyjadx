@@ -3,7 +3,7 @@ version: 2.1
 executors:
   ubuntu-executor:
     docker:
-      - image: ubuntu:18.10
+      - image: ubuntu:20.04
 
 jobs:
   build:
@@ -11,11 +11,11 @@ jobs:
     steps:
       - run:
           command: |
+            add-apt-repository ppa:deadsnakes/ppa
             apt-get update -qq
             apt-get install -yqq openjdk-8-jdk
-            apt-get install -yqq cmake zlib1g-dev python-dev build-essential git software-properties-common
-            apt-get install -yqq libpython3.6 libpython3.6-dev python3.6 python3-pip
-            apt-get install -yqq libpython3.7 libpython3.7-dev python3.7
+            apt-get install -yqq cmake zlib1g-dev build-essential git software-properties-common
+            apt-get install -yqq python3.6 python3.7 python3.8 python3-pip
             apt-get install -yqq g++
             update-alternatives --get-selections | grep ^java
             python3.6 -m pip install setuptools --upgrade
@@ -31,6 +31,8 @@ jobs:
             python3.6 ./examples/jadx_decompile.py ./examples/com.passwordchecker.apk --classes com.example.passwordchecker.PasswordChecker
             python3.7 ./setup.py build -j8 bdist_wheel --plat-name="manylinux1_x86_64"
             python3.7 ./setup.py sdist
+            python3.8 ./setup.py build -j8 bdist_wheel --plat-name="manylinux1_x86_64"
+            python3.8 ./setup.py sdist
       - persist_to_workspace:
           root: ~/project
           paths:
@@ -44,10 +46,11 @@ jobs:
       - GH_NAME: "Jadx CI - Circleci"
     steps:
       - run: |
+          add-apt-repository ppa:deadsnakes/ppa
           apt-get update -qq
-          apt-get install -yqq cmake zlib1g-dev python-dev build-essential git software-properties-common
-          apt-get install -yqq libpython3.6 libpython3.6-dev python3.6 python3-pip
-          apt-get install -yqq libpython3.7 libpython3.7-dev python3.7
+          apt-get install -yqq openjdk-8-jdk
+          apt-get install -yqq cmake zlib1g-dev build-essential git software-properties-common
+          apt-get install -yqq python3.6 python3.7 python3.8 python3-pip
           apt-get install -yqq ca-certificates
           python3.6 -m pip install setuptools --upgrade
           python3.6 -m pip install wheel twine
@@ -63,19 +66,20 @@ jobs:
       executor: ubuntu-executor
       steps:
         - run: |
+            add-apt-repository ppa:deadsnakes/ppa
             apt-get update -qq
             apt-get install -yqq ca-certificates
-            apt-get install -yqq zlib1g-dev python-dev build-essential git software-properties-common
-            apt-get install -yqq libpython3.6 libpython3.6-dev python3.6 python3-pip
-            python3.6 -m pip install setuptools --upgrade
-            python3.6 -m pip install wheel twine
+            apt-get install -yqq cmake zlib1g-dev build-essential git software-properties-common
+            apt-get install -yqq python3.8 python3-pip
+            python3.8 -m pip install setuptools --upgrade
+            python3.8 -m pip install wheel twine
         - attach_workspace:
             at: ~/project
         - run: |
             echo -e "[pypi]"                    >> ~/.pypirc
             echo -e "username = pyjadx"         >> ~/.pypirc
             echo -e "password = $PYPI_PASSWORD" >> ~/.pypirc
-            python3.6 -m twine upload ./dist/*
+            python3.8 -m twine upload ./dist/*
 
 workflows:
   version: 2.1
