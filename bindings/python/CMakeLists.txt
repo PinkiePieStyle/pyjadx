@@ -78,7 +78,7 @@ if (PYJADX_ASAN)
 endif()
 
 
-if (CMAKE_BUILD_TYPE MATCHES Release AND UNIX)
+if (CMAKE_BUILD_TYPE MATCHES Release AND UNIX AND NOT APPLE)
   add_custom_command(
     TARGET pyjadx
     COMMENT "Strip Python bindings"
