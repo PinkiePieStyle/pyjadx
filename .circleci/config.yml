@@ -4,6 +4,8 @@ executors:
   ubuntu-executor:
     docker:
       - image: ubuntu:20.04
+    environment:
+      TZ: "Europe/Paris"
 
 jobs:
   build:
@@ -11,6 +13,7 @@ jobs:
     steps:
       - run:
           command: |
+            ln -fs /usr/share/zoneinfo/Europe/Paris /etc/localtime
             apt-get update -qq
             apt-get install -yqq openjdk-8-jdk
             apt-get install -yqq cmake zlib1g-dev build-essential git software-properties-common
@@ -47,6 +50,7 @@ jobs:
       - GH_NAME: "Jadx CI - Circleci"
     steps:
       - run: |
+          ln -fs /usr/share/zoneinfo/Europe/Paris /etc/localtime
           apt-get update -qq
           apt-get install -yqq openjdk-8-jdk
           apt-get install -yqq cmake zlib1g-dev build-essential git software-properties-common
@@ -68,6 +72,7 @@ jobs:
       executor: ubuntu-executor
       steps:
         - run: |
+            ln -fs /usr/share/zoneinfo/Europe/Paris /etc/localtime
             apt-get update -qq
             apt-get install -yqq ca-certificates
             apt-get install -yqq cmake zlib1g-dev build-essential git software-properties-common
