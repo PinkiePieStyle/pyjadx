@@ -15,6 +15,13 @@
 #include "core.hpp"
 #include <dlfcn.h>
 #include <numeric>
+
+#ifdef _WINDOWS || __WIN32
+  #define SEP ";"
+#else
+  #define SEP ":"
+#endif
+
 namespace jni {
 
 jadx::api::JadxDecompiler Jadx::load(const std::string& apk_path,
@@ -51,7 +58,7 @@ std::vector<std::string> get_potential_libjvm_paths() {
   std::string file_name;
 
 // From heuristics
-#ifdef __WIN32
+#ifdef _WINDOWS || __WIN32
   search_prefixes = {""};
   search_suffixes = {"/jre/bin/server", "/bin/server"};
   file_name = "jvm.dll";
@@ -244,14 +251,14 @@ Jadx::Jadx(void) {
       std::end(jadx_libraries),
       std::string{},
       [] (const std::string& lhs, const char* rhs) {
-        return lhs.empty() ? prefix + rhs : lhs + ":" + prefix + rhs;
+        return lhs.empty() ? prefix + rhs : lhs + SEP + prefix + rhs;
       });
 
   std::string classpath_option = "-Djava.class.path=" + classpath;
 
 
   // 1. Get the number of JVM created
-  int nJVMs;
+  jint nJVMs;
   jvm_get_created(nullptr, 0, &nJVMs);
   if (nJVMs > 0) {
     jvm_get_created(&this->jvm_, 1, &nJVMs);
