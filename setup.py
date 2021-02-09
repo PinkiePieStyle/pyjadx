@@ -94,14 +94,27 @@ class CMakeBuild(build_ext):
 
         subprocess.check_call(['cmake', ext.sourcedir] + cmake_args, cwd=self.build_temp, env=env)
 
-        log.info("Using {} jobs".format(jobs))
-        subprocess.check_call(['make', '-j', str(jobs), 'pyjadx'], cwd=self.build_temp)
+        if os.name == 'nt':
+            subprocess.check_call(
+                ['cmake', '--build', '.'] + build_args, cwd=self.build_temp)
+        else:
+            log.info("Using {} jobs".format(jobs))
+            subprocess.check_call(
+                ['make', '-j', str(jobs), 'pyjadx'], cwd=self.build_temp)
 
-        pyjadx_dst  = os.path.join(self.build_lib, self.get_ext_filename(self.get_ext_fullname(ext.name)))
+        pyjadx_dst = os.path.join(self.build_lib, self.get_ext_filename(
+            self.get_ext_fullname(ext.name)))
 
         libsuffix = pyjadx_dst.split(".")[-1]
 
-        pyjadx_path = os.path.join(cmake_library_output_directory, "pyjadx.{}".format(libsuffix))
+        if os.name == 'nt':
+            # TODO: check why it outputs there
+            pyjadx_path = os.path.join(
+                cmake_library_output_directory, cfg, 'bindings/python', cfg, "pyjadx.{}".format(libsuffix))
+        else:
+            pyjadx_path = os.path.join(
+                cmake_library_output_directory, "pyjadx.{}".format(libsuffix))
+
         if not os.path.exists(self.build_lib):
             os.makedirs(self.build_lib)
 
