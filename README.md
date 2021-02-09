@@ -19,6 +19,11 @@ to create the bridge C++ / Python.
   $ python ./setup.py install --user
 ```
 
+
+## Windows only
+Get https://github.com/dlfcn-win32/dlfcn-win32
+Copy dlfcn.c + dlfcn.h to pyjadx/src
+
 You can also build the documentation with:
 
 ```bash
