@@ -27,7 +27,11 @@ set(JADX_PYTHON_SRC
 
 add_library(pyjadx SHARED ${JADX_PYTHON_SRC})
 
+target_link_libraries(pyjadx PUBLIC jadxjni ${PYTHON_LIBRARIES})
 
+if (MSVC)
+  target_compile_options(pyjadx PRIVATE "/permissive-")
+endif()
 
 macro(ADD_FLAG_IF_SUPPORTED flag name)
   CHECK_C_COMPILER_FLAG("${flag}"   "C_SUPPORTS_${name}")
