@@ -28,3 +28,13 @@ if(APPLE)
       "${CMAKE_CURRENT_LIST_DIR}/jadx_prefix_osx.cpp"
   )
 endif()
+
+if(WIN32)
+  target_sources(jadxjni
+    INTERFACE
+      "${CMAKE_CURRENT_LIST_DIR}/jadx_prefix_windows.cpp"
+      "${CMAKE_CURRENT_LIST_DIR}/dlfcn.c"
+    INTERFACE
+      "${CMAKE_CURRENT_LIST_DIR}/dlfcn.h"
+  )
+endif()
