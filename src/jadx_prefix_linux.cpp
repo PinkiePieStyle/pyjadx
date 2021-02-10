@@ -19,7 +19,7 @@ namespace jni {
 std::string get_jadx_prefix(void) {
 
   char* env_value = nullptr;
-  if ((env_value = getenv("JADX_PREFIX")) != nullptr) {
+  if ((env_value = getenv(ENV_VAR)) != nullptr) {
     return env_value;
   }
 
