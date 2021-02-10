@@ -19,6 +19,8 @@
 
 #include <vector>
 namespace jni {
+  
+#define ENV_VAR "JADX_PREFIX"
 
 #if defined(JVM_STATIC_LINK)
 static constexpr bool jvm_static_link = true;
